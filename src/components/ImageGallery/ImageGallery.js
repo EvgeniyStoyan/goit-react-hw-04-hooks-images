@@ -14,6 +14,9 @@ const Status = {
   REJECTED: 'rejected',
 };
 
+const API_KEY = '22499741-87b5d21a315c32b3b505be895';
+const BASE_URL = 'https://pixabay.com/api';
+
 export default function ImageGallery({ onClickImage, searchQuery }) {
   const [images, setImages] = useState(null);
   const [page, setPage] = useState(1);
@@ -21,39 +24,37 @@ export default function ImageGallery({ onClickImage, searchQuery }) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const API_KEY = '22499741-87b5d21a315c32b3b505be895';
-    const BASE_URL = 'https://pixabay.com/api';
-    if (!searchQuery) {
-      return;
+    if (page === 1) {
+      if (!searchQuery) {
+        return;
+      }
+
+      setStatus(Status.PENDING);
+
+      setTimeout(() => {
+        fetch(
+          `${BASE_URL}/?q=${searchQuery}&page=${page}&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=12`,
+        )
+          .then(response => response.json())
+          .then(response => {
+            if (response.hits.length === 0) {
+              toast.error(`No image with name  ${searchQuery}`);
+              return Promise.reject(
+                new Error(`Please try to enter something else`),
+              );
+            }
+            setImages(response.hits);
+            setStatus(Status.RESOLVED);
+          })
+          .catch(error => {
+            setError(error);
+            setStatus(Status.REJECTED);
+          });
+      }, 1000);
     }
-
-    setStatus(Status.PENDING);
-
-    setTimeout(() => {
-      fetch(
-        `${BASE_URL}/?q=${searchQuery}&page=${page}&key=${API_KEY}&image_type=photo&orientation=horizontal&per_page=12`,
-      )
-        .then(response => response.json())
-        .then(response => {
-          if (response.hits.length === 0) {
-            toast.error(`No image with name  ${searchQuery}`);
-            return Promise.reject(
-              new Error(`Please try to enter something else`),
-            );
-          }
-          setImages(response.hits);
-          setStatus(Status.RESOLVED);
-        })
-        .catch(error => {
-          setError(error);
-          setStatus(Status.REJECTED);
-        });
-    }, 1000);
   }, [searchQuery, page]);
 
   useEffect(() => {
-    const API_KEY = '22499741-87b5d21a315c32b3b505be895';
-    const BASE_URL = 'https://pixabay.com/api';
     if (page !== 1) {
       setStatus(Status.DOWNLOAD);
       setTimeout(() => {

@@ -14,7 +14,8 @@ export default function App() {
   };
 
   const openModal = imageInModal => {
-    setImageInModal(true, imageInModal);
+    setImageInModal(imageInModal);
+    setShowModal(true);
   };
 
   const closeModal = () => {
